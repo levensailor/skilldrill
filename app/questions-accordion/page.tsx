@@ -3,12 +3,13 @@
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { FaArrowLeft, FaPlus } from 'react-icons/fa';
-import CategorySectionColumn from '@/components/CategorySectionColumn';
+import CategorySectionAccordion from '@/components/CategorySectionAccordion';
 import type { Category, Question } from '@/lib/types';
 
-export default function QuestionsPage() {
+export default function QuestionsAccordionPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [expandedCategoryId, setExpandedCategoryId] = useState<number | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -16,6 +17,13 @@ export default function QuestionsPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    // Set first category as expanded when categories are loaded
+    if (categories.length > 0 && expandedCategoryId === null) {
+      setExpandedCategoryId(categories[0].id);
+    }
+  }, [categories, expandedCategoryId]);
 
   const loadData = async () => {
     const [categoriesRes, questionsRes] = await Promise.all([
@@ -40,6 +48,8 @@ export default function QuestionsPage() {
         setCategories([...categories, newCategory]);
         setNewCategoryName('');
         setIsAddingCategory(false);
+        // Expand the newly created category
+        setExpandedCategoryId(newCategory.id);
       });
     }
   };
@@ -71,6 +81,10 @@ export default function QuestionsPage() {
     setQuestions(questions.filter((q) => q.id !== id));
   };
 
+  const handleToggleCategory = (categoryId: number) => {
+    setExpandedCategoryId(expandedCategoryId === categoryId ? null : categoryId);
+  };
+
   const getQuestionsForCategory = (categoryId: number) => {
     return questions.filter((q) => q.category_id === categoryId);
   };
@@ -85,7 +99,7 @@ export default function QuestionsPage() {
           >
             <FaArrowLeft className="text-xs" /> Back
           </Link>
-          <h1 className="text-lg font-semibold text-gray-900">Questions</h1>
+          <h1 className="text-lg font-semibold text-gray-900">Questions (Accordion)</h1>
           <div className="w-16"></div>
         </div>
 
@@ -141,12 +155,14 @@ export default function QuestionsPage() {
             <p className="text-sm">No categories yet. Create your first category to get started!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-0">
             {categories.map((category) => (
-              <CategorySectionColumn
+              <CategorySectionAccordion
                 key={category.id}
                 category={category}
                 questions={getQuestionsForCategory(category.id)}
+                isExpanded={expandedCategoryId === category.id}
+                onToggle={() => handleToggleCategory(category.id)}
                 onAddQuestion={handleAddQuestion}
                 onUpdateQuestion={handleUpdateQuestion}
                 onDeleteQuestion={handleDeleteQuestion}
