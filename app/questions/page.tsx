@@ -77,28 +77,28 @@ export default function QuestionsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
+      <div className="container mx-auto px-3 py-3">
+        <div className="mb-3 flex items-center justify-between">
           <Link
             href="/"
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
           >
-            <FaArrowLeft /> Back to Home
+            <FaArrowLeft className="text-xs" /> Back
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Questions</h1>
-          <div className="w-24"></div>
+          <h1 className="text-lg font-semibold text-gray-900">Questions</h1>
+          <div className="w-16"></div>
         </div>
 
         {isAddingCategory ? (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Create New Category</h2>
-            <div className="flex gap-3">
+          <div className="bg-white rounded shadow-sm p-2 mb-3">
+            <h2 className="text-sm font-semibold mb-2">Create New Category</h2>
+            <div className="flex gap-2">
               <input
                 type="text"
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="Category name..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleAddCategory();
@@ -111,9 +111,9 @@ export default function QuestionsPage() {
               <button
                 onClick={handleAddCategory}
                 disabled={isPending || !newCategoryName.trim()}
-                className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-1"
               >
-                <FaPlus /> Create
+                <FaPlus className="text-xs" /> Create
               </button>
               <button
                 onClick={() => {
@@ -121,7 +121,7 @@ export default function QuestionsPage() {
                   setNewCategoryName('');
                 }}
                 disabled={isPending}
-                className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+                className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -130,15 +130,15 @@ export default function QuestionsPage() {
         ) : (
           <button
             onClick={() => setIsAddingCategory(true)}
-            className="mb-6 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2 shadow-md"
+            className="mb-3 px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1"
           >
-            <FaPlus /> Create New Category
+            <FaPlus className="text-xs" /> Create Category
           </button>
         )}
 
         {categories.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <p className="text-lg">No categories yet. Create your first category to get started!</p>
+          <div className="text-center py-8 text-gray-500">
+            <p className="text-sm">No categories yet. Create your first category to get started!</p>
           </div>
         ) : (
           categories.map((category) => (

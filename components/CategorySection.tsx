@@ -35,12 +35,12 @@ export default function CategorySection({
   };
 
   return (
-    <div className="mb-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-gray-300">
+    <div className="mb-4">
+      <h2 className="text-base font-semibold text-gray-800 mb-2 pb-1 border-b border-gray-300">
         {category.name}
       </h2>
       
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+      <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 mb-2">
         {questions.map((question) => (
           <QuestionCard
             key={question.id}
@@ -52,22 +52,22 @@ export default function CategorySection({
       </div>
 
       {isAdding ? (
-        <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-300">
+        <div className="bg-gray-50 rounded p-2 border border-dashed border-gray-300">
           <textarea
             value={newQuestionContent}
             onChange={(e) => setNewQuestionContent(e.target.value)}
             placeholder="Enter question content..."
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3"
-            rows={3}
+            className="w-full p-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent mb-1.5"
+            rows={2}
             autoFocus
           />
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <button
               onClick={handleAddQuestion}
               disabled={isPending || !newQuestionContent.trim()}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-1"
             >
-              <FaPlus /> Add Question
+              <FaPlus className="text-xs" /> Add
             </button>
             <button
               onClick={() => {
@@ -75,7 +75,7 @@ export default function CategorySection({
                 setNewQuestionContent('');
               }}
               disabled={isPending}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+              className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
             >
               Cancel
             </button>
@@ -84,9 +84,9 @@ export default function CategorySection({
       ) : (
         <button
           onClick={() => setIsAdding(true)}
-          className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center gap-2 transition-colors"
+          className="w-full py-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border border-dashed border-gray-300 flex items-center justify-center gap-1 transition-colors"
         >
-          <FaPlus /> Add New Question
+          <FaPlus className="text-xs" /> Add Question
         </button>
       )}
     </div>
