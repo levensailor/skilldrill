@@ -120,9 +120,14 @@ export async function getTestWithQuestions(testId: number): Promise<{ test: Test
   }
 
   // Get all questions
-  const { rows: allQuestions } = await sql<Question>`
-    SELECT * FROM questions WHERE id = ANY(${questionIds})
-  `;
+  // Query questions individually and combine results
+  const allQuestions: Question[] = [];
+  for (const questionId of questionIds) {
+    const question = await getQuestion(questionId);
+    if (question) {
+      allQuestions.push(question);
+    }
+  }
   
   // Sort questions according to test_questions order
   const questionMap = new Map(allQuestions.map(q => [q.id, q]));
