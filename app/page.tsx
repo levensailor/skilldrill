@@ -14,19 +14,19 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           <Link
             href="/questions"
-            className="group bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1"
+            className="group block overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
           >
-            <div className="flex flex-col items-center text-center">
-              <div className="bg-blue-100 rounded-full p-6 mb-4 group-hover:bg-blue-200 transition-colors">
+            <div className="flex flex-col items-center text-center p-8">
+              <div className="rounded-full bg-blue-100 p-6 mb-4 transition group-hover:bg-blue-200">
                 <FaQuestionCircle className="text-4xl text-blue-600" />
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
                 Questions
               </h2>
-              <p className="text-gray-600">
+              <p className="text-sm text-gray-600">
                 Create and manage interview questions organized by categories
               </p>
             </div>
@@ -34,16 +34,16 @@ export default function Home() {
 
           <Link
             href="/tests"
-            className="group bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1"
+            className="group block overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
           >
-            <div className="flex flex-col items-center text-center">
-              <div className="bg-green-100 rounded-full p-6 mb-4 group-hover:bg-green-200 transition-colors">
+            <div className="flex flex-col items-center text-center p-8">
+              <div className="rounded-full bg-green-100 p-6 mb-4 transition group-hover:bg-green-200">
                 <FaClipboardList className="text-4xl text-green-600" />
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
                 Tests
               </h2>
-              <p className="text-gray-600">
+              <p className="text-sm text-gray-600">
                 Build tests by selecting questions from different categories
               </p>
             </div>
@@ -51,16 +51,16 @@ export default function Home() {
 
           <Link
             href="/interviews"
-            className="group bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1"
+            className="group block overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
           >
-            <div className="flex flex-col items-center text-center">
-              <div className="bg-purple-100 rounded-full p-6 mb-4 group-hover:bg-purple-200 transition-colors">
+            <div className="flex flex-col items-center text-center p-8">
+              <div className="rounded-full bg-purple-100 p-6 mb-4 transition group-hover:bg-purple-200">
                 <FaUserTie className="text-4xl text-purple-600" />
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
                 Interviews
               </h2>
-              <p className="text-gray-600">
+              <p className="text-sm text-gray-600">
                 Conduct interviews and score candidate responses
               </p>
             </div>

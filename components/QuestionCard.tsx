@@ -36,13 +36,13 @@ export default function QuestionCard({ question, onUpdate, onDelete }: QuestionC
   };
 
   return (
-    <div className="bg-white rounded shadow-sm p-2 border border-gray-200 hover:shadow transition-shadow">
+    <article className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
       {isEditing ? (
-        <div className="space-y-1.5">
+        <div className="p-3 space-y-2">
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full p-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+            className="w-full rounded-lg border-gray-200 p-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             rows={2}
             autoFocus
           />
@@ -50,7 +50,7 @@ export default function QuestionCard({ question, onUpdate, onDelete }: QuestionC
             <button
               onClick={handleSave}
               disabled={isPending}
-              className="p-1.5 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 flex items-center justify-center"
+              className="inline-flex items-center justify-center rounded-lg bg-green-600 p-1.5 text-white transition hover:bg-green-700 focus:outline-none focus:ring disabled:opacity-50"
               title="Save"
             >
               <FaCheck className="text-xs" />
@@ -58,7 +58,7 @@ export default function QuestionCard({ question, onUpdate, onDelete }: QuestionC
             <button
               onClick={handleCancel}
               disabled={isPending}
-              className="p-1.5 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 flex items-center justify-center"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white p-1.5 text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring disabled:opacity-50"
               title="Cancel"
             >
               <FaTimes className="text-xs" />
@@ -66,19 +66,19 @@ export default function QuestionCard({ question, onUpdate, onDelete }: QuestionC
           </div>
         </div>
       ) : (
-        <div className="space-y-1.5">
-          <p className="text-sm text-gray-800 leading-snug">{question.content}</p>
+        <div className="p-3 space-y-2">
+          <p className="text-sm text-gray-700 leading-snug">{question.content}</p>
           <div className="flex gap-1 justify-end">
             <button
               onClick={() => setIsEditing(true)}
-              className="p-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center"
+              className="inline-flex items-center justify-center rounded-lg bg-blue-600 p-1.5 text-white transition hover:bg-blue-700 focus:outline-none focus:ring"
               title="Edit"
             >
               <FaEdit className="text-xs" />
             </button>
             <button
               onClick={handleDelete}
-              className="p-1.5 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center"
+              className="inline-flex items-center justify-center rounded-lg bg-red-600 p-1.5 text-white transition hover:bg-red-700 focus:outline-none focus:ring"
               title="Delete"
             >
               <FaTrash className="text-xs" />
@@ -86,7 +86,7 @@ export default function QuestionCard({ question, onUpdate, onDelete }: QuestionC
           </div>
         </div>
       )}
-    </div>
+    </article>
   );
 }
 

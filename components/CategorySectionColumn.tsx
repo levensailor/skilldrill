@@ -36,7 +36,7 @@ export default function CategorySectionColumn({
 
   return (
     <div className="mb-4">
-      <h2 className="text-base font-semibold text-gray-800 mb-2 pb-1 border-b border-gray-300">
+      <h2 className="text-base font-medium text-gray-900 mb-3 pb-2 border-b border-gray-200">
         {category.name}
       </h2>
       
@@ -52,20 +52,20 @@ export default function CategorySectionColumn({
       </div>
 
       {isAdding ? (
-        <div className="bg-gray-50 rounded p-2 border border-dashed border-gray-300">
+        <div className="rounded-lg border border-dashed border-gray-300 bg-white p-3">
           <textarea
             value={newQuestionContent}
             onChange={(e) => setNewQuestionContent(e.target.value)}
             placeholder="Enter question content..."
-            className="w-full p-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent mb-1.5"
+            className="w-full rounded-lg border-gray-200 p-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 mb-2"
             rows={2}
             autoFocus
           />
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <button
               onClick={handleAddQuestion}
               disabled={isPending || !newQuestionContent.trim()}
-              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-1"
+              className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring disabled:opacity-50"
             >
               <FaPlus className="text-xs" /> Add
             </button>
@@ -75,7 +75,7 @@ export default function CategorySectionColumn({
                 setNewQuestionContent('');
               }}
               disabled={isPending}
-              className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring disabled:opacity-50"
             >
               Cancel
             </button>
@@ -84,7 +84,7 @@ export default function CategorySectionColumn({
       ) : (
         <button
           onClick={() => setIsAdding(true)}
-          className="w-full py-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border border-dashed border-gray-300 flex items-center justify-center gap-1 transition-colors"
+          className="inline-flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-gray-300 bg-white px-4 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
         >
           <FaPlus className="text-xs" /> Add Question
         </button>

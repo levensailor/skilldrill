@@ -90,15 +90,15 @@ export default function QuestionsPage() {
         </div>
 
         {isAddingCategory ? (
-          <div className="bg-white rounded shadow-sm p-2 mb-3">
-            <h2 className="text-sm font-semibold mb-2">Create New Category</h2>
+          <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm mb-3">
+            <h2 className="text-sm font-medium text-gray-900 mb-3">Create New Category</h2>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="Category name..."
-                className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 rounded-lg border-gray-200 p-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleAddCategory();
@@ -111,7 +111,7 @@ export default function QuestionsPage() {
               <button
                 onClick={handleAddCategory}
                 disabled={isPending || !newCategoryName.trim()}
-                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-1"
+                className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring disabled:opacity-50"
               >
                 <FaPlus className="text-xs" /> Create
               </button>
@@ -121,7 +121,7 @@ export default function QuestionsPage() {
                   setNewCategoryName('');
                 }}
                 disabled={isPending}
-                className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+                className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -130,7 +130,7 @@ export default function QuestionsPage() {
         ) : (
           <button
             onClick={() => setIsAddingCategory(true)}
-            className="mb-3 px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1"
+            className="mb-3 inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring"
           >
             <FaPlus className="text-xs" /> Create Category
           </button>

@@ -39,23 +39,21 @@ export default function CategorySectionAccordion({
   };
 
   return (
-    <div className="mb-2 border border-gray-200 rounded bg-white">
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-2 text-left hover:bg-gray-50 transition-colors"
+        className="flex w-full cursor-pointer items-center justify-between gap-1.5 rounded-lg bg-gray-50 p-4 text-left text-gray-900 transition hover:bg-gray-100"
       >
-        <h2 className="text-base font-semibold text-gray-800">
+        <h2 className="text-base font-medium text-gray-900">
           {category.name}
         </h2>
-        {isExpanded ? (
-          <FaChevronUp className="text-xs text-gray-500" />
-        ) : (
-          <FaChevronDown className="text-xs text-gray-500" />
-        )}
+        <span className={`shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+          <FaChevronDown className="size-4 text-gray-500" />
+        </span>
       </button>
       
       {isExpanded && (
-        <div className="p-2 border-t border-gray-200">
+        <div className="p-4 pt-0">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 mb-2">
             {questions.map((question) => (
               <QuestionCard
@@ -68,20 +66,20 @@ export default function CategorySectionAccordion({
           </div>
 
           {isAdding ? (
-            <div className="bg-gray-50 rounded p-2 border border-dashed border-gray-300">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
               <textarea
                 value={newQuestionContent}
                 onChange={(e) => setNewQuestionContent(e.target.value)}
                 placeholder="Enter question content..."
-                className="w-full p-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent mb-1.5"
+                className="w-full rounded-lg border-gray-200 p-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 rows={2}
                 autoFocus
               />
-              <div className="flex gap-1">
+              <div className="mt-2 flex gap-2">
                 <button
                   onClick={handleAddQuestion}
                   disabled={isPending || !newQuestionContent.trim()}
-                  className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-1"
+                  className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring disabled:opacity-50"
                 >
                   <FaPlus className="text-xs" /> Add
                 </button>
@@ -91,7 +89,7 @@ export default function CategorySectionAccordion({
                     setNewQuestionContent('');
                   }}
                   disabled={isPending}
-                  className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+                  className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -100,7 +98,7 @@ export default function CategorySectionAccordion({
           ) : (
             <button
               onClick={() => setIsAdding(true)}
-              className="w-full py-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border border-dashed border-gray-300 flex items-center justify-center gap-1 transition-colors"
+              className="inline-flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-gray-300 bg-white px-4 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
             >
               <FaPlus className="text-xs" /> Add Question
             </button>
