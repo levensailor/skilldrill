@@ -53,11 +53,11 @@ export default function TestsPage() {
     }
   };
 
-  const handleUpdateTest = async (id: number, name: string) => {
+  const handleUpdateTest = async (id: number, name: string, questionIds: number[]) => {
     const res = await fetch(`/api/tests/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, question_ids: questionIds }),
     });
     const updatedTest = await res.json();
     setTests(tests.map((t) => (t.id === id ? updatedTest : t)));
@@ -97,22 +97,22 @@ export default function TestsPage() {
         </div>
 
         {isCreating ? (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Create New Test</h2>
+          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm mb-6">
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">Create New Test</h2>
             <div className="space-y-4">
               <input
                 type="text"
                 value={testName}
                 onChange={(e) => setTestName(e.target.value)}
                 placeholder="Test name..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-lg border-gray-200 p-2 text-sm shadow-sm focus:border-green-500 focus:ring-1 focus:ring-green-500"
                 autoFocus
               />
 
-              <div className="max-h-96 overflow-y-auto border border-gray-200 rounded-md p-4">
-                <h3 className="font-semibold mb-3 text-gray-700">Select Questions:</h3>
+              <div className="max-h-96 overflow-y-auto rounded-lg border border-gray-200 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-gray-700">Select Questions:</h3>
                 {categories.length === 0 ? (
-                  <p className="text-gray-500">No categories available. Create categories and questions first.</p>
+                  <p className="text-sm text-gray-500">No categories available. Create categories and questions first.</p>
                 ) : (
                   categories.map((category) => {
                     const categoryQuestions = getQuestionsForCategory(category.id);
@@ -120,14 +120,14 @@ export default function TestsPage() {
 
                     return (
                       <div key={category.id} className="mb-4">
-                        <h4 className="font-medium text-gray-800 mb-2 border-b pb-1">
+                        <h4 className="mb-2 border-b pb-1 text-sm font-medium text-gray-800">
                           {category.name}
                         </h4>
-                        <div className="space-y-2 ml-4">
+                        <div className="ml-4 space-y-2">
                           {categoryQuestions.map((question) => (
                             <label
                               key={question.id}
-                              className="flex items-start gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                              className="flex cursor-pointer items-start gap-2 rounded p-2 text-sm text-gray-700 transition hover:bg-gray-50"
                             >
                               <input
                                 type="checkbox"
@@ -135,7 +135,7 @@ export default function TestsPage() {
                                 onChange={() => toggleQuestion(question.id)}
                                 className="mt-1"
                               />
-                              <span className="text-sm text-gray-700">{question.content}</span>
+                              <span className="text-sm">{question.content}</span>
                             </label>
                           ))}
                         </div>
@@ -149,7 +149,7 @@ export default function TestsPage() {
                 <button
                   onClick={handleCreateTest}
                   disabled={isPending || !testName.trim() || selectedQuestionIds.length === 0}
-                  className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
+                  className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 focus:outline-none focus:ring disabled:opacity-50"
                 >
                   <FaCheck /> Create Test
                 </button>
@@ -160,7 +160,7 @@ export default function TestsPage() {
                     setSelectedQuestionIds([]);
                   }}
                   disabled={isPending}
-                  className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+                  className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -170,7 +170,7 @@ export default function TestsPage() {
         ) : (
           <button
             onClick={() => setIsCreating(true)}
-            className="mb-6 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center gap-2 shadow-md"
+            className="mb-6 inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 focus:outline-none focus:ring"
           >
             <FaPlus /> Create New Test
           </button>
@@ -186,6 +186,8 @@ export default function TestsPage() {
               <TestCard
                 key={test.id}
                 test={test}
+                categories={categories}
+                questions={questions}
                 onUpdate={handleUpdateTest}
                 onDelete={handleDeleteTest}
               />
