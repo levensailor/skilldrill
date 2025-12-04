@@ -7,6 +7,7 @@ import type {
   Interview,
   Interviewer,
   InterviewScore,
+  InterviewQuestionAnswer,
 } from './types';
 
 // Database query functions
@@ -249,6 +250,50 @@ export async function upsertInterviewScore(
     const { rows } = await sql<InterviewScore>`
       INSERT INTO interview_scores (interview_id, interviewer_id, question_id, score)
       VALUES (${interviewId}, ${interviewerId}, ${questionId}, ${score})
+      RETURNING *
+    `;
+    return rows[0];
+  }
+}
+
+export async function getInterviewQuestionAnswer(
+  interviewId: number,
+  questionId: number
+): Promise<InterviewQuestionAnswer | null> {
+  const { rows } = await sql<InterviewQuestionAnswer>`
+    SELECT * FROM interview_question_answers 
+    WHERE interview_id = ${interviewId} AND question_id = ${questionId}
+  `;
+  return rows[0] || null;
+}
+
+export async function getInterviewQuestionAnswers(interviewId: number): Promise<InterviewQuestionAnswer[]> {
+  const { rows } = await sql<InterviewQuestionAnswer>`
+    SELECT * FROM interview_question_answers 
+    WHERE interview_id = ${interviewId}
+  `;
+  return rows;
+}
+
+export async function upsertInterviewQuestionAnswer(
+  interviewId: number,
+  questionId: number,
+  answerNotes: string | null
+): Promise<InterviewQuestionAnswer> {
+  const existing = await getInterviewQuestionAnswer(interviewId, questionId);
+  
+  if (existing) {
+    const { rows } = await sql<InterviewQuestionAnswer>`
+      UPDATE interview_question_answers 
+      SET answer_notes = ${answerNotes} 
+      WHERE id = ${existing.id} 
+      RETURNING *
+    `;
+    return rows[0];
+  } else {
+    const { rows } = await sql<InterviewQuestionAnswer>`
+      INSERT INTO interview_question_answers (interview_id, question_id, answer_notes)
+      VALUES (${interviewId}, ${questionId}, ${answerNotes})
       RETURNING *
     `;
     return rows[0];

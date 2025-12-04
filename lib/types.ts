@@ -61,6 +61,15 @@ export interface InterviewScore {
   updated_at: string;
 }
 
+export interface InterviewQuestionAnswer {
+  id: number;
+  interview_id: number;
+  question_id: number;
+  answer_notes?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface InterviewWithDetails extends Interview {
   test?: Test;
   interviewers?: Interviewer[];

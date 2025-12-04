@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getInterview, updateInterview, getInterviewers, getInterviewScores, getTestWithQuestions } from '@/lib/db';
+import { getInterview, updateInterview, getInterviewers, getInterviewScores, getTestWithQuestions, getInterviewQuestionAnswers } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
@@ -25,10 +25,11 @@ export async function GET(
     }
 
     // Fetch related data
-    const [interviewers, scores, testData] = await Promise.all([
+    const [interviewers, scores, testData, answers] = await Promise.all([
       getInterviewers(interviewId),
       getInterviewScores(interviewId),
       getTestWithQuestions(interview.test_id),
+      getInterviewQuestionAnswers(interviewId),
     ]);
 
     return NextResponse.json({
@@ -37,6 +38,7 @@ export async function GET(
       scores,
       test: testData?.test,
       questions: testData?.questions || [],
+      answers: answers || [],
     });
   } catch (error) {
     console.error('Error fetching interview:', error);

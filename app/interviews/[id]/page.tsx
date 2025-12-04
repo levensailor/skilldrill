@@ -1,17 +1,18 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition, Fragment } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FaArrowLeft, FaPlus } from 'react-icons/fa';
+import { FaArrowLeft, FaPlus, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import ScoreEditor from '@/components/ScoreEditor';
-import type { Interview, Interviewer, Question, InterviewScore, Test } from '@/lib/types';
+import type { Interview, Interviewer, Question, InterviewScore, Test, InterviewQuestionAnswer } from '@/lib/types';
 
 interface InterviewWithDetails extends Interview {
   interviewers: Interviewer[];
   scores: InterviewScore[];
   questions: Question[];
   test: Test;
+  answers?: InterviewQuestionAnswer[];
 }
 
 export default function InterviewDetailPage() {
@@ -23,6 +24,9 @@ export default function InterviewDetailPage() {
   const [isAddingInterviewer, setIsAddingInterviewer] = useState(false);
   const [newInterviewerName, setNewInterviewerName] = useState('');
   const [isPending, startTransition] = useTransition();
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
+  const [answerNotes, setAnswerNotes] = useState<Record<number, string>>({});
+  const [savingAnswers, setSavingAnswers] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     if (!isNaN(interviewId)) {
@@ -34,6 +38,15 @@ export default function InterviewDetailPage() {
     const res = await fetch(`/api/interviews/${interviewId}`);
     const data = await res.json();
     setInterview(data);
+    
+    // Initialize answer notes from loaded data
+    if (data.answers) {
+      const notesMap: Record<number, string> = {};
+      data.answers.forEach((answer: InterviewQuestionAnswer) => {
+        notesMap[answer.question_id] = answer.answer_notes || '';
+      });
+      setAnswerNotes(notesMap);
+    }
   };
 
   const handleAddInterviewer = async () => {
@@ -83,6 +96,51 @@ export default function InterviewDetailPage() {
       (s) => s.interviewer_id === interviewerId && s.question_id === questionId
     );
     return score ? score.score : null;
+  };
+
+  const toggleQuestion = (questionId: number) => {
+    setExpandedQuestions((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
+      } else {
+        newSet.add(questionId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleAnswerNotesChange = (questionId: number, notes: string) => {
+    setAnswerNotes((prev) => ({
+      ...prev,
+      [questionId]: notes,
+    }));
+  };
+
+  const handleSaveAnswerNotes = async (questionId: number) => {
+    setSavingAnswers((prev) => ({ ...prev, [questionId]: true }));
+    try {
+      const res = await fetch(`/api/interviews/${interviewId}/answers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question_id: questionId,
+          answer_notes: answerNotes[questionId] || null,
+        }),
+      });
+      if (res.ok) {
+        // Reload interview to get updated answers
+        await loadInterview();
+      }
+    } catch (error) {
+      console.error('Error saving answer notes:', error);
+    } finally {
+      setSavingAnswers((prev) => ({ ...prev, [questionId]: false }));
+    }
+  };
+
+  const getAnswerNotes = (questionId: number): string => {
+    return answerNotes[questionId] || '';
   };
 
   if (!interview) {
@@ -193,25 +251,85 @@ export default function InterviewDetailPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {interview.questions.map((question, index) => (
-                    <tr key={question.id} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="py-4 px-4 text-gray-800">
-                        <div className="font-medium mb-1">Q{index + 1}</div>
-                        <div className="text-sm">{question.content}</div>
-                      </td>
-                      {interview.interviewers.map((interviewer) => (
-                        <td key={interviewer.id} className="py-4 px-4 text-center">
-                          <ScoreEditor
-                            interviewId={interviewId}
-                            interviewerId={interviewer.id}
-                            questionId={question.id}
-                            initialScore={getScore(interviewer.id, question.id)}
-                            onScoreChange={handleScoreChange}
-                          />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
+                  {interview.questions.map((question, index) => {
+                    const isExpanded = expandedQuestions.has(question.id);
+                    return (
+                      <Fragment key={question.id}>
+                        <tr 
+                          className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                          onClick={() => toggleQuestion(question.id)}
+                        >
+                          <td className="py-4 px-4 text-gray-800">
+                            <div className="flex items-center gap-2">
+                              {isExpanded ? (
+                                <FaChevronUp className="text-gray-400" />
+                              ) : (
+                                <FaChevronDown className="text-gray-400" />
+                              )}
+                              <div>
+                                <div className="font-medium mb-1">Q{index + 1}</div>
+                                <div className="text-sm">{question.content}</div>
+                              </div>
+                            </div>
+                          </td>
+                          {interview.interviewers.map((interviewer) => (
+                            <td key={interviewer.id} className="py-4 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                              <ScoreEditor
+                                interviewId={interviewId}
+                                interviewerId={interviewer.id}
+                                questionId={question.id}
+                                initialScore={getScore(interviewer.id, question.id)}
+                                onScoreChange={handleScoreChange}
+                              />
+                            </td>
+                          ))}
+                        </tr>
+                        {isExpanded && (
+                          <tr className="border-b border-gray-200 bg-gray-50">
+                            <td colSpan={interview.interviewers.length + 1} className="py-4 px-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <h4 className="font-semibold text-gray-700 mb-2">Question Notes</h4>
+                                  <div className="bg-white rounded-lg border border-gray-200 p-3 min-h-[150px]">
+                                    {question.notes ? (
+                                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{question.notes}</p>
+                                    ) : (
+                                      <p className="text-sm text-gray-400 italic">No notes available for this question.</p>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold text-gray-700 mb-2">Candidate Answer</h4>
+                                  <div className="space-y-2">
+                                    <textarea
+                                      value={getAnswerNotes(question.id)}
+                                      onChange={(e) => handleAnswerNotesChange(question.id, e.target.value)}
+                                      placeholder="Enter the candidate's answer to this question..."
+                                      className="w-full rounded-lg border-gray-200 p-3 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 min-h-[150px]"
+                                      rows={6}
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <div className="flex justify-end">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleSaveAnswerNotes(question.id);
+                                        }}
+                                        disabled={savingAnswers[question.id]}
+                                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:outline-none focus:ring disabled:opacity-50"
+                                      >
+                                        {savingAnswers[question.id] ? 'Saving...' : 'Save Answer'}
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
