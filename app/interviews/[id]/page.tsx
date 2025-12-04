@@ -356,8 +356,8 @@ export default function InterviewDetailPage() {
                     className={`border-2 rounded-lg p-2 text-center cursor-pointer hover:shadow-md transition-shadow ${colorClass}`}
                     title={`${category.name}: ${avg !== undefined ? avg.toFixed(2) : 'No scores'} (${categoryQuestions.length} question${categoryQuestions.length !== 1 ? 's' : ''})`}
                   >
-                    <div className="text-xs font-semibold text-gray-800 mb-1 truncate">
-                      {category.name.length > 10 ? category.name.substring(0, 8) + '...' : category.name}
+                    <div className="font-semibold text-gray-800 mb-1 leading-[1.5]" style={{ fontSize: '0.8em', fontFamily: 'tetra, sans-serif' }}>
+                      {category.name}
                     </div>
                     {avg !== undefined ? (
                       <div className="text-lg font-bold text-gray-900">
