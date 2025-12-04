@@ -236,78 +236,83 @@ export default function InterviewDetailPage() {
           <div className="w-32"></div>
         </div>
 
-        {/* Feedback Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Summary Feedback</h2>
-          <textarea
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-            placeholder="Enter summary feedback for this interview..."
-            className="w-full rounded-lg border-gray-200 p-3 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            rows={5}
-          />
-          <div className="flex justify-end mt-3">
-            <button
-              onClick={handleSaveFeedback}
-              disabled={savingFeedback}
-              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:outline-none focus:ring disabled:opacity-50"
-            >
-              {savingFeedback ? 'Saving...' : 'Save Feedback'}
-            </button>
+        {/* Test Info, Feedback, and Score Summary in a single row */}
+        <div className="flex flex-col lg:flex-row gap-4 mb-6">
+          {/* Test Info Column */}
+          <div className="bg-white rounded-lg shadow-md p-4 flex-1">
+            <h2 className="text-lg font-semibold text-gray-800 mb-1">Test: {interview.test.name}</h2>
+            <p className="text-xs text-gray-500">
+              Created: {new Date(interview.created_at).toLocaleString()}
+            </p>
           </div>
-        </div>
 
-        {/* Score Averages Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Score Summary</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {categories.map(category => {
-              const categoryAverages = calculateCategoryAverages();
-              const avg = categoryAverages[category.id];
-              const categoryQuestions = interview.questions.filter(q => q.category_id === category.id);
-              
-              if (categoryQuestions.length === 0) return null;
-
-              return (
-                <div key={category.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium text-gray-700">{category.name}</span>
-                    {avg !== undefined ? (
-                      <span className="text-lg font-semibold text-gray-900">
-                        {avg.toFixed(2)}
-                      </span>
-                    ) : (
-                      <span className="text-sm text-gray-400">No scores yet</span>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {categoryQuestions.length} question{categoryQuestions.length !== 1 ? 's' : ''}
-                  </div>
-                </div>
-              );
-            })}
+          {/* Feedback Section Column */}
+          <div className="bg-white rounded-lg shadow-md p-4 flex-1">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">Summary Feedback</h2>
+            <textarea
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              placeholder="Enter summary feedback..."
+              className="w-full rounded-lg border-gray-200 p-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              rows={4}
+            />
+            <div className="flex justify-end mt-2">
+              <button
+                onClick={handleSaveFeedback}
+                disabled={savingFeedback}
+                className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 focus:outline-none focus:ring disabled:opacity-50"
+              >
+                {savingFeedback ? 'Saving...' : 'Save'}
+              </button>
+            </div>
           </div>
-          <div className="border-t border-gray-200 pt-4 mt-4">
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-semibold text-gray-800">Overall Average</span>
-              {calculateOverallAverage() !== null ? (
-                <span className="text-2xl font-bold text-purple-600">
-                  {calculateOverallAverage()!.toFixed(2)}
-                </span>
-              ) : (
-                <span className="text-sm text-gray-400">No scores yet</span>
-              )}
+
+          {/* Score Summary Column */}
+          <div className="bg-white rounded-lg shadow-md p-4 flex-1">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">Score Summary</h2>
+            <div className="space-y-2 mb-3 max-h-[200px] overflow-y-auto">
+              {categories.map(category => {
+                const categoryAverages = calculateCategoryAverages();
+                const avg = categoryAverages[category.id];
+                const categoryQuestions = interview.questions.filter(q => q.category_id === category.id);
+                
+                if (categoryQuestions.length === 0) return null;
+
+                return (
+                  <div key={category.id} className="border border-gray-200 rounded p-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-gray-700 text-sm">{category.name}</span>
+                      {avg !== undefined ? (
+                        <span className="text-base font-semibold text-gray-900">
+                          {avg.toFixed(2)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400">No scores</span>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {categoryQuestions.length} question{categoryQuestions.length !== 1 ? 's' : ''}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="border-t border-gray-200 pt-2">
+              <div className="flex justify-between items-center">
+                <span className="text-base font-semibold text-gray-800">Overall</span>
+                {calculateOverallAverage() !== null ? (
+                  <span className="text-xl font-bold text-purple-600">
+                    {calculateOverallAverage()!.toFixed(2)}
+                  </span>
+                ) : (
+                  <span className="text-xs text-gray-400">No scores</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">Test: {interview.test.name}</h2>
-            <p className="text-sm text-gray-500">
-              Created: {new Date(interview.created_at).toLocaleString()}
-            </p>
-          </div>
 
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-700 mb-3">Interviewers</h3>
