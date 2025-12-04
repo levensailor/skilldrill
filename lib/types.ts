@@ -10,6 +10,7 @@ export interface Question {
   id: number;
   category_id: number;
   content: string;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
 }

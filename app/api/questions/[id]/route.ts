@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getQuestion, updateQuestion, deleteQuestion } from '@/lib/db';
+import { getQuestion, updateQuestion, updateQuestionNotes, deleteQuestion } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
@@ -50,21 +50,36 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { content, category_id } = body;
+    const { content, category_id, notes } = body;
 
-    if (!content || typeof content !== 'string' || content.trim().length === 0) {
-      return NextResponse.json(
-        { error: 'Question content is required' },
-        { status: 400 }
+    if (content !== undefined) {
+      if (typeof content !== 'string' || content.trim().length === 0) {
+        return NextResponse.json(
+          { error: 'Question content is required' },
+          { status: 400 }
+        );
+      }
+
+      const question = await updateQuestion(
+        questionId,
+        content.trim(),
+        category_id
       );
+      return NextResponse.json(question);
     }
 
-    const question = await updateQuestion(
-      questionId,
-      content.trim(),
-      category_id
+    if (notes !== undefined) {
+      const question = await updateQuestionNotes(
+        questionId,
+        notes === null || notes === '' ? null : notes.trim()
+      );
+      return NextResponse.json(question);
+    }
+
+    return NextResponse.json(
+      { error: 'Either content or notes must be provided' },
+      { status: 400 }
     );
-    return NextResponse.json(question);
   } catch (error) {
     console.error('Error updating question:', error);
     return NextResponse.json(

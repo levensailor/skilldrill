@@ -52,6 +52,13 @@ export async function createQuestion(categoryId: number, content: string): Promi
   return rows[0];
 }
 
+export async function updateQuestionNotes(id: number, notes: string | null): Promise<Question> {
+  const { rows } = await sql<Question>`
+    UPDATE questions SET notes = ${notes} WHERE id = ${id} RETURNING *
+  `;
+  return rows[0];
+}
+
 export async function updateQuestion(id: number, content: string, categoryId?: number): Promise<Question> {
   if (categoryId !== undefined) {
     const { rows } = await sql<Question>`
