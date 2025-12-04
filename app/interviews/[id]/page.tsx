@@ -241,9 +241,69 @@ export default function InterviewDetailPage() {
           {/* Test Info Column */}
           <div className="bg-white rounded-lg shadow-md p-4 flex-1">
             <h2 className="text-lg font-semibold text-gray-800 mb-1">Test: {interview.test.name}</h2>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 mb-4">
               Created: {new Date(interview.created_at).toLocaleString()}
             </p>
+            
+            {/* Interviewers Section */}
+            <div className="mt-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">Interviewers</h3>
+              {isAddingInterviewer ? (
+                <div className="flex flex-col gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={newInterviewerName}
+                    onChange={(e) => setNewInterviewerName(e.target.value)}
+                    placeholder="Interviewer name..."
+                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleAddInterviewer();
+                      if (e.key === 'Escape') {
+                        setIsAddingInterviewer(false);
+                        setNewInterviewerName('');
+                      }
+                    }}
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleAddInterviewer}
+                      disabled={isPending || !newInterviewerName.trim()}
+                      className="flex-1 px-3 py-1.5 bg-purple-500 text-white text-xs rounded hover:bg-purple-600 disabled:opacity-50 flex items-center justify-center gap-1"
+                    >
+                      <FaPlus className="text-xs" /> Add
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsAddingInterviewer(false);
+                        setNewInterviewerName('');
+                      }}
+                      disabled={isPending}
+                      className="px-3 py-1.5 bg-gray-500 text-white text-xs rounded hover:bg-gray-600 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setIsAddingInterviewer(true)}
+                  className="mb-2 px-3 py-1.5 bg-purple-500 text-white text-xs rounded hover:bg-purple-600 flex items-center gap-1"
+                >
+                  <FaPlus className="text-xs" /> Add Interviewer
+                </button>
+              )}
+              <div className="flex flex-wrap gap-1.5">
+                {interview.interviewers.map((interviewer) => (
+                  <span
+                    key={interviewer.id}
+                    className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium"
+                  >
+                    {interviewer.name}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Feedback Section Column */}
@@ -270,7 +330,7 @@ export default function InterviewDetailPage() {
           {/* Score Summary Column */}
           <div className="bg-white rounded-lg shadow-md p-4 flex-1">
             <h2 className="text-lg font-semibold text-gray-800 mb-2">Score Summary</h2>
-            <div className="space-y-2 mb-3 max-h-[200px] overflow-y-auto">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3 max-h-[200px] overflow-y-auto">
               {categories.map(category => {
                 const categoryAverages = calculateCategoryAverages();
                 const avg = categoryAverages[category.id];
@@ -278,20 +338,36 @@ export default function InterviewDetailPage() {
                 
                 if (categoryQuestions.length === 0) return null;
 
+                // Color coding based on score ranges (similar to periodic table element types)
+                const getScoreColor = (score: number | undefined) => {
+                  if (score === undefined) return 'bg-gray-100 border-gray-300';
+                  if (score >= 4.5) return 'bg-green-100 border-green-400';
+                  if (score >= 3.5) return 'bg-blue-100 border-blue-400';
+                  if (score >= 2.5) return 'bg-yellow-100 border-yellow-400';
+                  if (score >= 1.5) return 'bg-orange-100 border-orange-400';
+                  return 'bg-red-100 border-red-400';
+                };
+
+                const colorClass = getScoreColor(avg);
+
                 return (
-                  <div key={category.id} className="border border-gray-200 rounded p-2">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium text-gray-700 text-sm">{category.name}</span>
-                      {avg !== undefined ? (
-                        <span className="text-base font-semibold text-gray-900">
-                          {avg.toFixed(2)}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-400">No scores</span>
-                      )}
+                  <div 
+                    key={category.id} 
+                    className={`border-2 rounded-lg p-2 text-center cursor-pointer hover:shadow-md transition-shadow ${colorClass}`}
+                    title={`${category.name}: ${avg !== undefined ? avg.toFixed(2) : 'No scores'} (${categoryQuestions.length} question${categoryQuestions.length !== 1 ? 's' : ''})`}
+                  >
+                    <div className="text-xs font-semibold text-gray-800 mb-1 truncate">
+                      {category.name.length > 10 ? category.name.substring(0, 8) + '...' : category.name}
                     </div>
-                    <div className="text-xs text-gray-500">
-                      {categoryQuestions.length} question{categoryQuestions.length !== 1 ? 's' : ''}
+                    {avg !== undefined ? (
+                      <div className="text-lg font-bold text-gray-900">
+                        {avg.toFixed(1)}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-gray-500">—</div>
+                    )}
+                    <div className="text-[10px] text-gray-600 mt-0.5">
+                      {categoryQuestions.length}Q
                     </div>
                   </div>
                 );
@@ -313,64 +389,6 @@ export default function InterviewDetailPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">Interviewers</h3>
-            {isAddingInterviewer ? (
-              <div className="flex gap-3 mb-3">
-                <input
-                  type="text"
-                  value={newInterviewerName}
-                  onChange={(e) => setNewInterviewerName(e.target.value)}
-                  placeholder="Interviewer name..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddInterviewer();
-                    if (e.key === 'Escape') {
-                      setIsAddingInterviewer(false);
-                      setNewInterviewerName('');
-                    }
-                  }}
-                />
-                <button
-                  onClick={handleAddInterviewer}
-                  disabled={isPending || !newInterviewerName.trim()}
-                  className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:opacity-50 flex items-center gap-2"
-                >
-                  <FaPlus /> Add
-                </button>
-                <button
-                  onClick={() => {
-                    setIsAddingInterviewer(false);
-                    setNewInterviewerName('');
-                  }}
-                  disabled={isPending}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setIsAddingInterviewer(true)}
-                className="mb-3 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 flex items-center gap-2"
-              >
-                <FaPlus /> Add Interviewer
-              </button>
-            )}
-            <div className="flex flex-wrap gap-2">
-              {interview.interviewers.map((interviewer) => (
-                <span
-                  key={interviewer.id}
-                  className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
-                >
-                  {interviewer.name}
-                </span>
-              ))}
-            </div>
-          </div>
-
           {interview.interviewers.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <p>Add at least one interviewer to start scoring questions.</p>
