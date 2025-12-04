@@ -182,10 +182,20 @@ export async function createInterview(testId: number, candidateName: string): Pr
   return rows[0];
 }
 
-export async function updateInterview(id: number, candidateName?: string): Promise<Interview> {
-  if (candidateName !== undefined) {
+export async function updateInterview(id: number, candidateName?: string, feedback?: string | null): Promise<Interview> {
+  if (candidateName !== undefined && feedback !== undefined) {
+    const { rows } = await sql<Interview>`
+      UPDATE interviews SET candidate_name = ${candidateName}, feedback = ${feedback} WHERE id = ${id} RETURNING *
+    `;
+    return rows[0];
+  } else if (candidateName !== undefined) {
     const { rows } = await sql<Interview>`
       UPDATE interviews SET candidate_name = ${candidateName} WHERE id = ${id} RETURNING *
+    `;
+    return rows[0];
+  } else if (feedback !== undefined) {
+    const { rows } = await sql<Interview>`
+      UPDATE interviews SET feedback = ${feedback} WHERE id = ${id} RETURNING *
     `;
     return rows[0];
   }

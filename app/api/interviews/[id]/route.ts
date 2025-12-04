@@ -65,16 +65,18 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { candidate_name } = body;
+    const { candidate_name, feedback } = body;
 
-    if (candidate_name !== undefined) {
-      if (typeof candidate_name !== 'string' || candidate_name.trim().length === 0) {
-        return NextResponse.json(
-          { error: 'Candidate name must be a non-empty string' },
-          { status: 400 }
-        );
-      }
-      await updateInterview(interviewId, candidate_name.trim());
+    if (candidate_name !== undefined || feedback !== undefined) {
+      const candidateNameValue = candidate_name !== undefined 
+        ? (typeof candidate_name === 'string' && candidate_name.trim().length > 0 ? candidate_name.trim() : undefined)
+        : undefined;
+      
+      const feedbackValue = feedback !== undefined
+        ? (feedback === null || feedback === '' ? null : (typeof feedback === 'string' ? feedback.trim() : null))
+        : undefined;
+
+      await updateInterview(interviewId, candidateNameValue, feedbackValue);
     }
 
     const interview = await getInterview(interviewId);

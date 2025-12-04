@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaArrowLeft, FaPlus, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import ScoreEditor from '@/components/ScoreEditor';
-import type { Interview, Interviewer, Question, InterviewScore, Test, InterviewQuestionAnswer } from '@/lib/types';
+import type { Interview, Interviewer, Question, InterviewScore, Test, InterviewQuestionAnswer, Category } from '@/lib/types';
 
 interface InterviewWithDetails extends Interview {
   interviewers: Interviewer[];
@@ -27,17 +27,28 @@ export default function InterviewDetailPage() {
   const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
   const [answerNotes, setAnswerNotes] = useState<Record<number, string>>({});
   const [savingAnswers, setSavingAnswers] = useState<Record<number, boolean>>({});
+  const [feedback, setFeedback] = useState<string>('');
+  const [savingFeedback, setSavingFeedback] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     if (!isNaN(interviewId)) {
       loadInterview();
+      loadCategories();
     }
   }, [interviewId]);
+
+  const loadCategories = async () => {
+    const res = await fetch('/api/categories');
+    const data = await res.json();
+    setCategories(data);
+  };
 
   const loadInterview = async () => {
     const res = await fetch(`/api/interviews/${interviewId}`);
     const data = await res.json();
     setInterview(data);
+    setFeedback(data.feedback || '');
     
     // Initialize answer notes from loaded data
     if (data.answers) {
@@ -143,6 +154,66 @@ export default function InterviewDetailPage() {
     return answerNotes[questionId] || '';
   };
 
+  const handleSaveFeedback = async () => {
+    setSavingFeedback(true);
+    try {
+      const res = await fetch(`/api/interviews/${interviewId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feedback: feedback.trim() || null }),
+      });
+      if (res.ok) {
+        await loadInterview();
+      }
+    } catch (error) {
+      console.error('Error saving feedback:', error);
+    } finally {
+      setSavingFeedback(false);
+    }
+  };
+
+  const calculateCategoryAverages = () => {
+    if (!interview || !categories.length) return {};
+
+    const categoryScores: Record<number, number[]> = {};
+    
+    // Initialize category scores
+    categories.forEach(cat => {
+      categoryScores[cat.id] = [];
+    });
+
+    // Collect all scores for each category
+    interview.questions.forEach(question => {
+      const questionScores = interview.scores
+        .filter(score => score.question_id === question.id)
+        .map(score => score.score);
+      
+      if (questionScores.length > 0) {
+        categoryScores[question.category_id] = [
+          ...categoryScores[question.category_id],
+          ...questionScores
+        ];
+      }
+    });
+
+    // Calculate averages
+    const averages: Record<number, number> = {};
+    Object.keys(categoryScores).forEach(catId => {
+      const scores = categoryScores[parseInt(catId)];
+      if (scores.length > 0) {
+        averages[parseInt(catId)] = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+      }
+    });
+
+    return averages;
+  };
+
+  const calculateOverallAverage = (): number | null => {
+    if (!interview || interview.scores.length === 0) return null;
+    const total = interview.scores.reduce((sum, score) => sum + score.score, 0);
+    return total / interview.scores.length;
+  };
+
   if (!interview) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -163,6 +234,71 @@ export default function InterviewDetailPage() {
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Interview: {interview.candidate_name}</h1>
           <div className="w-32"></div>
+        </div>
+
+        {/* Feedback Section */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Summary Feedback</h2>
+          <textarea
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+            placeholder="Enter summary feedback for this interview..."
+            className="w-full rounded-lg border-gray-200 p-3 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            rows={5}
+          />
+          <div className="flex justify-end mt-3">
+            <button
+              onClick={handleSaveFeedback}
+              disabled={savingFeedback}
+              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:outline-none focus:ring disabled:opacity-50"
+            >
+              {savingFeedback ? 'Saving...' : 'Save Feedback'}
+            </button>
+          </div>
+        </div>
+
+        {/* Score Averages Section */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Score Summary</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {categories.map(category => {
+              const categoryAverages = calculateCategoryAverages();
+              const avg = categoryAverages[category.id];
+              const categoryQuestions = interview.questions.filter(q => q.category_id === category.id);
+              
+              if (categoryQuestions.length === 0) return null;
+
+              return (
+                <div key={category.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-gray-700">{category.name}</span>
+                    {avg !== undefined ? (
+                      <span className="text-lg font-semibold text-gray-900">
+                        {avg.toFixed(2)}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-400">No scores yet</span>
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {categoryQuestions.length} question{categoryQuestions.length !== 1 ? 's' : ''}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="border-t border-gray-200 pt-4 mt-4">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-semibold text-gray-800">Overall Average</span>
+              {calculateOverallAverage() !== null ? (
+                <span className="text-2xl font-bold text-purple-600">
+                  {calculateOverallAverage()!.toFixed(2)}
+                </span>
+              ) : (
+                <span className="text-sm text-gray-400">No scores yet</span>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">

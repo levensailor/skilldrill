@@ -40,6 +40,7 @@ export interface Interview {
   id: number;
   test_id: number;
   candidate_name: string;
+  feedback?: string | null;
   created_at: string;
   updated_at: string;
 }
